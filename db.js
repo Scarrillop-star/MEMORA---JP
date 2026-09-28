@@ -63,9 +63,9 @@ CREATE TABLE IF NOT EXISTS task_completions (
 
 // Configuración por defecto de horarios de asistencia (solo si no existe aún)
 const defaults = {
-  hora_inicio: '07:00',
-  hora_fin_presente: '07:05',
-  hora_fin_atraso: '07:15'
+  hora_inicio: '07:15',
+  hora_fin_presente: '08:00',
+  hora_fin_atraso: '13:45'
 };
 const getConfig = db.prepare('SELECT valor FROM config WHERE clave = ?');
 const setConfig = db.prepare('INSERT INTO config (clave, valor) VALUES (?, ?)');
@@ -94,6 +94,24 @@ if (totalUsuarios === 0) {
   );
   for (const c of cuentasDemo) insertarUsuario.run(c.nombre, c.usuario, c.rol);
   console.log('Cuentas de demostración creadas automáticamente (sin contraseña).');
+}
+
+// ---------- Nombres reales de los estudiantes/líder ----------
+// Esto NO cambia el usuario con el que inician sesión (sigue siendo
+// "estudiante1", "estudiante2", etc.), solo el nombre que se muestra
+// en pantalla (por ejemplo en Asistencia). Se aplica cada vez que
+// arranca el servidor, así que para cambiar un nombre en el futuro
+// basta con editar esta lista y volver a subir el proyecto.
+const nombresReales = {
+  estudiante1: 'Alan Sabando',
+  estudiante2: 'Isabel Ponce',
+  estudiante3: 'David Velázquez',
+  estudiante4: 'Sebastián Bailón',
+  lider1: 'Romina Carrillo'
+};
+const actualizarNombre = db.prepare('UPDATE users SET nombre = ? WHERE usuario = ?');
+for (const [usuario, nombre] of Object.entries(nombresReales)) {
+  actualizarNombre.run(nombre, usuario);
 }
 
 module.exports = db;
